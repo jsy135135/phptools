@@ -4,8 +4,13 @@
  * @email:732677288@qq.com
  * @Date:   2018-04-10 21:04:19
  * @Last Modified by:   jsy135135
- * @Last Modified time: 2018-04-10 21:57:39
+ * @Last Modified time: 2018-04-11 00:47:10
  */
+// 自定义错误处理函数
+function myErrorHandler($errno,$errstr,$errfile,$errline){
+  // throw new Exception("$errno,$errstr", 1);
+}
+set_error_handler('myErrorHandler');
 // 检测端口是否监听
 function phpPingByPort($portArray)
 {
@@ -16,12 +21,15 @@ function phpPingByPort($portArray)
   // it's valid
     // 循环遍历端口
     foreach ($portArray as $key => $value) {
-      $fp = @fsockopen($ip, $value, $errno, $errstr, 10);
-      if(!$fp){
-        echo 'port:'.$value.' is down'."\n";
-        // $errno.'----'.$errstr."\n";
-      }else{
-        echo 'port:'.$value.' is successfull'."\n";
+      try{
+        if(fsockopen($ip, $value, $errno, $errstr, 10)){
+          echo 'port:'.$value.' is up'."\n";
+        }
+        else{
+          throw new Exception('port:'.$value.' is down'."\n");
+        }
+      }catch(Exception $e){
+        echo $e->getMessage();
       }
     }
   }else{
